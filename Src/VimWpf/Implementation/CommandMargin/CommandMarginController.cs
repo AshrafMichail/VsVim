@@ -528,6 +528,16 @@ namespace Vim.UI.Wpf.Implementation.CommandMargin
         private void OnKeyInputEnd(object sender, KeyInputEventArgs args)
         {
             KeyInputEventComplete();
+
+            // On entering command mode or forward/backward search, the EditKind state is only
+            // updated at KeyInputEnd (and not KeyInputStart), so we need to check again here
+
+            var editKind = CalculateCommandLineEditKind();
+            if (editKind != _editKind && editKind != EditKind.None)
+            {
+                ChangeEditKind(editKind);
+                _margin.UpdateCaretPosition(EditPosition.End);
+            }
         }
 
         private void OnStatusMessage(object sender, StringEventArgs args)
