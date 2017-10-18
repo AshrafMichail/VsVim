@@ -379,6 +379,19 @@ namespace Vim.UI.Wpf.Implementation.CommandMargin
                     _vimBuffer.Process(KeyInputUtil.VimKeyToKeyInput(VimKey.Down));
                     e.Handled = true;
                     break;
+                case Key.Home:
+                    _margin.UpdateCaretPosition(EditPosition.Start);
+                    e.Handled = true;
+                    break;
+                case Key.End:
+                    _margin.UpdateCaretPosition(EditPosition.End);
+                    e.Handled = true;
+                    break;
+                case Key.Left:
+                case Key.Back:
+                    // Ignore backspace if at start position
+                    e.Handled = _margin.IsCaretAtStart();
+                    break;
                 case Key.R:
                     if (e.KeyboardDevice.Modifiers == ModifierKeys.Control)
                     {
