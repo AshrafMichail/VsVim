@@ -354,6 +354,31 @@ namespace Vim.UI.Wpf.Implementation.CommandMargin
         }
 
         /// <summary>
+        /// This method handles keeping the history buffer in sync with the commandline display text
+		/// </summary>
+        private bool HandleHistoryNavigation(KeyInput keyInput)
+        {
+            bool handled = _vimBuffer.Process(KeyInputUtil.VimKeyToKeyInput(VimKey.Up)).IsAnyHandled;
+            var prefixChar = GetPrefixChar(_editKind);
+            if (handled && _editKind != EditKind.None && prefixChar.HasValue)
+            {
+                switch (_editKind)
+                {
+                    case EditKind.Command:
+                        UpdateCommandLine(prefixChar.ToString() + _vimBuffer.CommandMode.Command);
+                        break;
+
+                    case EditKind.SearchForward:
+                    case EditKind.SearchBackward:
+                        UpdateCommandLine(prefixChar.ToString() + _vimBuffer.IncrementalSearch.CurrentSearchText);
+                        break;
+                }
+                _margin.UpdateCaretPosition(EditPosition.End);
+            }
+            return handled;
+        }
+
+        /// <summary>
         /// This method handles the KeyInput as it applies to command line editor.  Make sure to 
         /// mark the key as handled if we use it here.  If we don't then it will propagate out to 
         /// the editor and be processed again
@@ -372,12 +397,10 @@ namespace Vim.UI.Wpf.Implementation.CommandMargin
                     e.Handled = true;
                     break;
                 case Key.Up:
-                    _vimBuffer.Process(KeyInputUtil.VimKeyToKeyInput(VimKey.Up));
-                    e.Handled = true;
+                    e.Handled = HandleHistoryNavigation(KeyInputUtil.VimKeyToKeyInput(VimKey.Up));
                     break;
                 case Key.Down:
-                    _vimBuffer.Process(KeyInputUtil.VimKeyToKeyInput(VimKey.Down));
-                    e.Handled = true;
+                    e.Handled = HandleHistoryNavigation(KeyInputUtil.VimKeyToKeyInput(VimKey.Up));
                     break;
                 case Key.Home:
                     if ((e.KeyboardDevice.Modifiers & ModifierKeys.Shift) == 0)
