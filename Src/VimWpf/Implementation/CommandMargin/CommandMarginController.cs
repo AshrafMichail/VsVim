@@ -354,8 +354,9 @@ namespace Vim.UI.Wpf.Implementation.CommandMargin
         }
 
         /// <summary>
-        /// This method handles keeping the history buffer in sync with the commandline display text
-		/// </summary>
+        /// This method handles keeping the history buffer in sync with the commandline display text 
+        /// which do not happen otherwise for EditKind.None.
+        /// </summary>
         private bool HandleHistoryNavigation(KeyInput keyInput)
         {
             bool handled = _vimBuffer.Process(KeyInputUtil.VimKeyToKeyInput(VimKey.Up)).IsAnyHandled;
